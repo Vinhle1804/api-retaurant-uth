@@ -44,3 +44,22 @@ export const GetOrdersOnlineRes = z.object({
   message: z.string(),
   data: z.array(OrderOnlineSchema)
 })
+
+export const UpdateOrderOnlineBody = z.object({
+  status: z.enum(OrderStatusValues),
+  dishId: z.number(),
+  quantity: z.number()
+})
+export type UpdateOrderOnlineBodyType = z.TypeOf<typeof UpdateOrderOnlineBody>
+
+export const OrderParam = z.object({
+  orderId: z.coerce.number()
+})
+export type OrderParamType = z.TypeOf<typeof OrderParam>
+
+export const UpdateOrderOnlineRes = z.object({
+  message: z.string(),
+  data: OrderOnlineSchema
+})
+
+export type UpdateOrderOnlineResType = z.TypeOf<typeof UpdateOrderOnlineRes>

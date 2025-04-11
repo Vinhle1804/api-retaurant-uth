@@ -1,24 +1,26 @@
-import { getOrderDetailController, getOrdersController } from '@/controllers/order.controller'
-import { getOrdersOnlineController } from '@/controllers/orderOnline.controller'
+import { ManagerRoom } from '@/constants/type'
+import { getOrderDetailController, getOrdersController, updateOrderController } from '@/controllers/order.controller'
+import { getOrdersOnlineController, updateOrderOnlineController } from '@/controllers/orderOnline.controller'
 import { requireLoginedHook, requireOwnerHook } from '@/hooks/auth.hooks'
 import { GetOrdersOnlineResType } from '@/schemaValidations/onlineGuest.schema'
-import { GetOrdersOnlineRes } from '@/schemaValidations/onlineOrder.schema'
+import { GetOrdersOnlineQueryParamsType, GetOrdersOnlineRes, UpdateOrderOnlineBody, UpdateOrderOnlineBodyType, UpdateOrderOnlineRes, UpdateOrderOnlineResType } from '@/schemaValidations/onlineOrder.schema'
 import {
   GetOrderDetailRes,
   GetOrderDetailResType,
   GetOrdersQueryParams,
-  GetOrdersQueryParamsType,
-  GetOrdersRes,
-  GetOrdersResType,
   OrderParam,
-  OrderParamType
+  OrderParamType,
+  UpdateOrderBody,
+  UpdateOrderBodyType,
+  UpdateOrderRes,
+  UpdateOrderResType
 } from '@/schemaValidations/order.schema'
 import { FastifyInstance, FastifyPluginOptions } from 'fastify'
 
 export default async function orderOnlineRoutes(fastify: FastifyInstance, options: FastifyPluginOptions) {
   fastify.addHook('preValidation', fastify.auth([requireLoginedHook]))
 
-  fastify.get<{ Reply: GetOrdersOnlineResType; Querystring: GetOrdersQueryParamsType }>(
+  fastify.get<{ Reply: GetOrdersOnlineResType; Querystring: GetOrdersOnlineQueryParamsType }>(
     '/',
     {
       schema: {
@@ -57,6 +59,35 @@ export default async function orderOnlineRoutes(fastify: FastifyInstance, option
       reply.send({
         message: 'Lấy đơn hàng thành công',
         data: result as GetOrderDetailResType['data']
+      })
+    }
+  )
+
+  fastify.put<{ Reply: UpdateOrderOnlineResType; Body: UpdateOrderOnlineBodyType; Params: OrderParamType }>(
+    '/:orderId',
+    {
+      schema: {
+        response: {
+          200: UpdateOrderOnlineRes
+        },
+        body: UpdateOrderOnlineBody,
+        params: OrderParam
+      },
+      preValidation: fastify.auth([requireOwnerHook])
+    },
+    async (request, reply) => {
+      const result = await updateOrderOnlineController(request.params.orderId, {
+        ...request.body,
+        orderHandlerId: request.decodedAccessToken?.userId as number
+      })
+      if (result.socketId) {
+        fastify.io.to(result.socketId).to(ManagerRoom).emit('update-order', result.order)
+      } else {
+        fastify.io.to(ManagerRoom).emit('update-order', result.order)
+      }
+      reply.send({
+        message: 'Cập nhật đơn hàng thành công',
+        data: result.order as UpdateOrderOnlineResType['data']
       })
     }
   )

@@ -37,7 +37,6 @@ export const OrderSchema = z.object({
   updatedAt: z.date()
 })
 
-
 export const UpdateOrderBody = z.object({
   status: z.enum(OrderStatusValues),
   dishId: z.number(),
