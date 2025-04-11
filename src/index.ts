@@ -22,6 +22,7 @@ import guestRoutes from '@/routes/guest.route'
 import orderRoutes from '@/routes/order.route'
 import { socketPlugin } from '@/plugins/socket.plugins'
 import guestOnlineRoutes from '@/routes/guestOnline.route'
+import orderOnlineRoutes from './routes/orderOnline.route'
 
 const fastify = Fastify({
   logger: false
@@ -75,6 +76,9 @@ const start = async () => {
     })
     fastify.register(orderRoutes, {
       prefix: '/orders'
+    })
+    fastify.register(orderOnlineRoutes, {
+      prefix: '/e-orders'
     })
     fastify.register(testRoutes, {
       prefix: '/test'

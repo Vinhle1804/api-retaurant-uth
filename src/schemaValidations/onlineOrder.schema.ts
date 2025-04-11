@@ -34,21 +34,13 @@ export const OrderOnlineSchema = z.object({
   updatedAt: z.date()
 })
 
+export const GetOrdersOnlineQueryParams = z.object({
+  fromDate: z.coerce.date().optional(),
+  toDate: z.coerce.date().optional()
+})
+export type GetOrdersOnlineQueryParamsType = z.TypeOf<typeof GetOrdersOnlineQueryParams>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const GetOrdersOnlineRes = z.object({
+  message: z.string(),
+  data: z.array(OrderOnlineSchema)
+})
