@@ -116,7 +116,6 @@ export const updateEmployeeAccount = async (accountId: number, body: UpdateEmplo
           email: body.email,
           avatar: body.avatar,
           role: body.role
-
         }
       })
       return account

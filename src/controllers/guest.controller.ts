@@ -104,7 +104,7 @@ export const guestRefreshTokenController = async (refreshToken: string) => {
       expiresIn: ms(envConfig.GUEST_ACCESS_TOKEN_EXPIRES_IN)
     }
   )
-  
+
   await prisma.guest.update({
     where: {
       id: decodedRefreshToken.userId

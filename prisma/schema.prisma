@@ -114,3 +114,4 @@ model Socket {
   guestId   Int?     @unique
   guest     Guest?   @relation(fields: [guestId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 } 
+

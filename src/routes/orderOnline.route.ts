@@ -3,17 +3,20 @@ import { getOrderDetailController, getOrdersController, updateOrderController } 
 import { getOrdersOnlineController, updateOrderOnlineController } from '@/controllers/orderOnline.controller'
 import { requireLoginedHook, requireOwnerHook } from '@/hooks/auth.hooks'
 import { GetOrdersOnlineResType } from '@/schemaValidations/onlineGuest.schema'
-import { GetOrdersOnlineQueryParamsType, GetOrdersOnlineRes, UpdateOrderOnlineBody, UpdateOrderOnlineBodyType, UpdateOrderOnlineRes, UpdateOrderOnlineResType } from '@/schemaValidations/onlineOrder.schema'
+import {
+  GetOrdersOnlineQueryParamsType,
+  GetOrdersOnlineRes,
+  UpdateOrderOnlineBody,
+  UpdateOrderOnlineBodyType,
+  UpdateOrderOnlineRes,
+  UpdateOrderOnlineResType
+} from '@/schemaValidations/onlineOrder.schema'
 import {
   GetOrderDetailRes,
   GetOrderDetailResType,
   GetOrdersQueryParams,
   OrderParam,
-  OrderParamType,
-  UpdateOrderBody,
-  UpdateOrderBodyType,
-  UpdateOrderRes,
-  UpdateOrderResType
+  OrderParamType
 } from '@/schemaValidations/order.schema'
 import { FastifyInstance, FastifyPluginOptions } from 'fastify'
 

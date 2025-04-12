@@ -1,5 +1,5 @@
 import prisma from '@/database'
-import { UpdateOrderOnlineBodyType } from '@/schemaValidations/onlineOrder.schema';
+import { UpdateOrderOnlineBodyType } from '@/schemaValidations/onlineOrder.schema'
 
 export const getOrdersOnlineController = async ({ fromDate, toDate }: { fromDate?: Date; toDate?: Date }) => {
   const orders = await prisma.order.findMany({
