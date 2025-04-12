@@ -1,5 +1,4 @@
 import { DishStatusValues, OrderStatusValues } from '@/constants/type'
-import { AccountSchema } from '@/schemaValidations/account.schema'
 import z from 'zod'
 
 const DishSnapshotSchema = z.object({
@@ -13,42 +12,36 @@ const DishSnapshotSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date()
 })
+
+// 🧩 Item món ăn trong đơn hàng online
+export const OrderOnlineDishSchema = z.object({
+  id: z.number(),
+  orderOnlineId: z.number(),
+  dishSnapshotId: z.number(),
+  dishSnapshot: DishSnapshotSchema,
+  quantity: z.number(),
+  price: z.number()
+})
+
 export const OrderOnlineSchema = z.object({
   id: z.number(),
-  accountId: z.number().nullable(),
+  trackingNumber: z.string().nullable().optional(),
+  accountId: z.number(),
   account: z
     .object({
       id: z.number(),
       name: z.string(),
+      email: z.string(),
       createdAt: z.date(),
       updatedAt: z.date()
     })
     .nullable(),
-  dishSnapshotId: z.number(),
-  dishSnapshot: DishSnapshotSchema,
-  quantity: z.number(),
-  orderHandlerId: z.number().nullable(),
-  orderHandler: AccountSchema.nullable(),
+  address: z.string(),
   status: z.enum(OrderStatusValues),
+  paymentMethod: z.string(),
+  note: z.string().nullable(),
+  totalPrice: z.number(),
+  items: z.array(OrderOnlineDishSchema),
   createdAt: z.date(),
   updatedAt: z.date()
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,15 +1,12 @@
 import { ManagerRoom } from '@/constants/type'
-import { guestOnlineCreateOrdersController, guestOnlineGetOrdersController } from '@/controllers/guestOnline.controller'
+import { guestOnlineCreateOrdersController } from '@/controllers/guestOnline.controller'
 import { requireGuestOnlineHook, requireLoginedHook } from '@/hooks/auth.hooks'
-import { GuestCreateOrdersBody } from '@/schemaValidations/guest.schema'
 import {
-  GetOrdersOnlineRes,
-  GetOrdersOnlineResType,
+  GuestOnlineCreateOrdersBody,
   GuestOnlineCreateOrdersBodyType,
   GuestOnlineCreateOrdersRes,
   GuestOnlineCreateOrdersResType
 } from '@/schemaValidations/onlineGuest.schema'
-import { GetOrderDetailRes } from '@/schemaValidations/order.schema'
 
 import { FastifyInstance, FastifyPluginOptions } from 'fastify'
 
@@ -48,7 +45,7 @@ export default async function guestOnlineRoutes(fastify: FastifyInstance, option
         response: {
           200: GuestOnlineCreateOrdersRes
         },
-        body: GuestCreateOrdersBody
+        body: GuestOnlineCreateOrdersBody
       },
       preValidation: fastify.auth([requireLoginedHook, requireGuestOnlineHook])
     },
@@ -63,28 +60,25 @@ export default async function guestOnlineRoutes(fastify: FastifyInstance, option
     }
   )
 
-  fastify.get<{
-    Reply: GetOrdersOnlineResType
-  }>(
-    '/orders',
-    {
-      schema: {
-        response: {
-          200: GetOrdersOnlineRes
-        }
-      },
-      preValidation: fastify.auth([requireLoginedHook, requireGuestOnlineHook])
-    },
-    async (request, reply) => {
-      const accountId = request.decodedAccessToken?.userId as number
-      const result = await guestOnlineGetOrdersController(accountId)
-      console.log("day la arayy maf",result)
-      reply.send({
-        message: 'Lấy danh sách đơn hàng thành công',
-        data: result as GetOrdersOnlineResType['data']
-      })
-    }
-  )
+  // fastify.get<{
+  //   Reply: GetOrdersOnlineResType
+  // }>(
+  //   '/orders',
+  //   {
+  //     schema: {
+  //       response: {
+  //         200: GetOrdersOnlineRes
+  //       }
+  //     },
+  //     preValidation: fastify.auth([requireLoginedHook, requireGuestOnlineHook])
+  //   },
+  //   async (request, reply) => {
+  //     const accountId = request.decodedAccessToken?.userId as number
+  //     const result = await guestOnlineGetOrdersController(accountId)
+  //     reply.send({
+  //       message: 'Lấy danh sách đơn hàng thành công',
+  //       data: result as GetOrdersOnlineResType['data']
+  //     })
+  //   }
+  // )
 }
-
-

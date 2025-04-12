@@ -1,5 +1,6 @@
-import { z } from "zod"
-import { OrderOnlineSchema } from "./onlineOrder.schema"
+// import { Role } from '@/constants/type'
+import z from 'zod'
+import { OrderOnlineSchema } from './onlineOrder.schema'
 
 export const GuestOnlineCreateOrdersBody = z.array(
   z.object({
@@ -16,5 +17,6 @@ export const GuestOnlineCreateOrdersRes = z.object({
 })
 export type GuestOnlineCreateOrdersResType = z.TypeOf<typeof GuestOnlineCreateOrdersRes>
 
-export const GetOrdersOnlineRes = GuestOnlineCreateOrdersRes
-export type GetOrdersOnlineResType = z.TypeOf<typeof GetOrdersOnlineRes>
+export const GuestOnlineGetOrdersRes = GuestOnlineCreateOrdersRes
+
+export type GuestGetOrdersResType = z.TypeOf<typeof GuestOnlineGetOrdersRes>

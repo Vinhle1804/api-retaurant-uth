@@ -14,21 +14,22 @@ datasource db {
 }
 
 model Account {
-  id            Int            @id @default(autoincrement())
-  name          String
-  email         String         @unique
-  password      String
-  avatar        String?
-  role          String         @default("Employee") // Owner, Employee
-  orders        Order[]        @relation("OrderOnline")
-  employees     Account[]      @relation("OwnerEmployee")
-  owner         Account?       @relation("OwnerEmployee", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  ownerId       Int?
-  handledOrders Order[]        @relation("OrderHandler")
-  refreshToken  RefreshToken[]
-  sockets       Socket[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id           Int            @id @default(autoincrement())
+  name         String
+  email        String         @unique
+  password     String
+  avatar       String?
+  role         String         @default("Employee") // Owner, Employee, GuestOnline
+  orders       Order[]        @relation("OrderAccount")
+  ordersOnline OrderOnline[] // Mối quan hệ một khách hàng có thể có nhiều đơn hàng online
+  employees    Account[]      @relation("OwnerEmployee")
+  owner        Account?       @relation("OwnerEmployee", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  ownerId      Int?
+  refreshToken RefreshToken[]
+  sockets      Socket[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Order        Order[]
 }
 
 model Dish {
@@ -44,17 +45,18 @@ model Dish {
 }
 
 model DishSnapshot {
-  id          Int      @id @default(autoincrement())
-  name        String
-  price       Int
-  description String
-  image       String
-  status      String   @default("Available")
-  dishId      Int?
-  dish        Dish?    @relation(fields: [dishId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  order       Order?   @relation("DishSnapshotOrder")
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
+  id                Int               @id @default(autoincrement())
+  name              String
+  price             Int
+  description       String
+  image             String
+  status            String            @default("Available")
+  dishId            Int?
+  dish              Dish?             @relation(fields: [dishId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedAt         DateTime          @updatedAt
+  createdAt         DateTime          @default(now())
+  order             Order[]           @relation("DishOrder")
+  orderOnlineDishes OrderOnlineItem[]
 }
 
 model Table {
@@ -72,15 +74,15 @@ model Order {
   id             Int          @id @default(autoincrement())
   guestId        Int?
   guest          Guest?       @relation(fields: [guestId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  accountId      Int?
+  account        Account?     @relation("OrderAccount", fields: [accountId], references: [id], onDelete: SetNull)
   table          Table?       @relation(fields: [tableNumber], references: [number], onDelete: SetNull, onUpdate: NoAction)
   tableNumber    Int?
-  dishSnapshot   DishSnapshot @relation("DishSnapshotOrder", fields: [dishSnapshotId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dishSnapshot   DishSnapshot @relation("DishOrder", fields: [dishSnapshotId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   dishSnapshotId Int          @unique
   quantity       Int
-  orderHandler   Account?     @relation("OrderHandler", fields: [orderHandlerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  orderHandler   Account?     @relation(fields: [orderHandlerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   orderHandlerId Int?
-  accountId      Int?
-  account        Account?     @relation("OrderOnline", fields: [accountId], references: [id])
   status         String       @default("Pending")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -113,4 +115,29 @@ model Socket {
   account   Account? @relation(fields: [accountId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   guestId   Int?     @unique
   guest     Guest?   @relation(fields: [guestId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-} 
+}
+
+model OrderOnline {
+  id             Int               @id @default(autoincrement())
+  trackingNumber String? // Số theo dõi đơn hàng (có thể null nếu chưa có số theo dõi)
+  accountId      Int // Liên kết với tài khoản khách hàng online nếu có
+  account        Account           @relation(fields: [accountId], references: [id])
+  address        String // Địa chỉ giao hàng
+  status         String            @default("Pending") // Trạng thái đơn hàng: Pending, Shipped, Delivered
+  paymentMethod  String // Phương thức thanh toán: Credit Card, COD, etc.
+  totalPrice     Int // Tổng giá trị đơn hàng
+  items          OrderOnlineItem[] // Mối quan hệ một đơn hàng có thể có nhiều món ăn
+  note           String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model OrderOnlineItem {
+  id             Int          @id @default(autoincrement())
+  orderOnlineId  Int
+  orderOnline    OrderOnline  @relation(fields: [orderOnlineId], references: [id])
+  dishSnapshotId Int
+  dishSnapshot   DishSnapshot @relation(fields: [dishSnapshotId], references: [id])
+  quantity       Int
+  price          Int // Giá của món ăn khi khách đặt online
+}

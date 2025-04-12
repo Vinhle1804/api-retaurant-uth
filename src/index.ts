@@ -21,7 +21,8 @@ import tablesRoutes from '@/routes/table.route'
 import guestRoutes from '@/routes/guest.route'
 import orderRoutes from '@/routes/order.route'
 import { socketPlugin } from '@/plugins/socket.plugins'
-import guestOnlineRoutes from '@/routes/guestOnline.route'
+import guestOnlineRoutes from './routes/guestOnline.route'
+// import guestOnlineRoutes from '@/routes/guestOnline.route'
 
 const fastify = Fastify({
   logger: false

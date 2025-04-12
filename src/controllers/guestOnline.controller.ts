@@ -1,57 +1,6 @@
-import { DishStatus, OrderStatus, Role } from '@/constants/type'
+import { DishStatus, OrderStatus } from '@/constants/type'
 import prisma from '@/database'
 import { GuestOnlineCreateOrdersBodyType } from '@/schemaValidations/onlineGuest.schema'
-
-//register
-// export const registerController = async (body: RegisterBodyType)=>{
-//     // Validate: Password vs Confirm Password
-//     if (body.password !== body.confirmPassword) {
-//       throw new EntityError([
-//         { field: 'confirmPassword', message: 'Mật khẩu xác nhận không khớp' }
-//       ])
-//     }
-//   const existingAccount = await prisma.guestOnlineAccount.findUnique({
-//     where: {
-//       email: body.email
-//     }
-//   })
-
-//   if (existingAccount) {
-//     throw new EntityError([{ field: 'email', message: 'Email đã tồn tại' }])
-//   }
-//   const hashedPassword = await hashPassword(body.password)
-//   const account = await prisma.guestOnlineAccount.create({
-//     data: {
-//       name: body.name,
-//       email: body.email,
-//       password: hashedPassword,
-//       role:  'GuestOnline'
-//     }
-//   })
-//   const accessToken = signAccessToken({
-//     userId: account.id,
-//     role: account.role as RoleType
-//   })
-//   const refreshToken = signRefreshToken({
-//     userId: account.id,
-//     role: account.role as RoleType
-//   })
-//   const decodedRefreshToken = verifyRefreshToken(refreshToken)
-//   const refreshTokenExpiresAt = new Date(decodedRefreshToken.exp * 1000)
-
-//   await prisma.refreshToken.create({
-//     data: {
-//       guestOnlineAccountId: account.id,
-//       token: refreshToken,
-//       expiresAt: refreshTokenExpiresAt
-//     }
-//   })
-//   return {
-//     account,
-//     accessToken,
-//     refreshToken
-//   }
-// }
 
 export const guestOnlineCreateOrdersController = async (accountId: number, body: GuestOnlineCreateOrdersBodyType) => {
   const result = await prisma.$transaction(async (tx) => {
@@ -60,6 +9,9 @@ export const guestOnlineCreateOrdersController = async (accountId: number, body:
         id: accountId
       }
     })
+    if (!account) {
+      throw new Error('d tim thay account')
+    }
 
     const orders = await Promise.all(
       body.map(async (order) => {
@@ -84,7 +36,7 @@ export const guestOnlineCreateOrdersController = async (accountId: number, body:
             status: dish.status
           }
         })
-        const orderRecord = await tx.order.create({
+        const orderRecord = await tx.orderOnline.create({
           data: {
             dishSnapshotId: dishSnapshot.id,
             accountId,
@@ -94,28 +46,10 @@ export const guestOnlineCreateOrdersController = async (accountId: number, body:
           },
           include: {
             dishSnapshot: true,
-            account: {
-              select: {
-                id: true,
-                name: true,
-                createdAt: true,
-                updatedAt: true
-              }
-            },
-            orderHandler: {
-              select: {
-                id: true,
-                name: true,
-                avatar: true,
-                email: true,
-                role: true,
-                createdAt: true,
-                updatedAt: true
-              }
-            }
+            account: true,
+            orderHandler: true
           }
         })
-
         type OrderRecord = typeof orderRecord
         return orderRecord as OrderRecord & {
           status: (typeof OrderStatus)[keyof typeof OrderStatus]
@@ -130,15 +64,15 @@ export const guestOnlineCreateOrdersController = async (accountId: number, body:
   return result
 }
 
-export const guestOnlineGetOrdersController = async (accountId: number) => {
+export const guestGetOrdersController = async (guestId: number) => {
   const orders = await prisma.order.findMany({
     where: {
-      accountId
+      guestId
     },
     include: {
       dishSnapshot: true,
       orderHandler: true,
-      account: true
+      guest: true
     }
   })
   return orders
