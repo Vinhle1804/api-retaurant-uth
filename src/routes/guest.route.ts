@@ -1,4 +1,5 @@
-import { ManagerRoom, Role } from '@/constants/type'
+import { Role } from '@/constants/roles'
+import { ManagerRoom } from '@/constants/type'
 import {
   guestCreateOrdersController,
   guestGetOrdersController,

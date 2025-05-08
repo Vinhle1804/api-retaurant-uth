@@ -1,4 +1,4 @@
-import { Role } from '@/constants/type'
+import { Role } from '@/constants/roles'
 import { OrderSchema } from '@/schemaValidations/order.schema'
 import z from 'zod'
 

@@ -1,4 +1,4 @@
-import { Role } from '@/constants/type'
+import { Role } from '@/constants/roles'
 import { AuthError } from '@/utils/errors'
 import { verifyAccessToken } from '@/utils/jwt'
 import { FastifyRequest } from 'fastify'
@@ -27,7 +27,7 @@ export const requireGuestHook = async (request: FastifyRequest) => {
 }
 
 export const requireGuestOnlineHook = async (request: FastifyRequest) => {
-  if (request.decodedAccessToken?.role !== Role.OrderGuest) {
+  if (request.decodedAccessToken?.role !== Role.GuestOnline) {
     throw new AuthError('Bạn không có quyền truy cập')
   }
 }

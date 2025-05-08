@@ -1,6 +1,7 @@
 import envConfig from '@/config'
 import { PrismaErrorCode } from '@/constants/error-reference'
-import { Role, TableStatus } from '@/constants/type'
+import { Role } from '@/constants/roles'
+import { TableStatus } from '@/constants/tables'
 import prisma from '@/database'
 import {
   ChangePasswordBodyType,

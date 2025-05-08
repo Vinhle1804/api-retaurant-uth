@@ -1,4 +1,5 @@
-import { Role, TokenType } from '@/constants/type'
+import { Role } from "@/constants/roles"
+import { TokenType } from "@/constants/tokens"
 
 export type TokenTypeValue = (typeof TokenType)[keyof typeof TokenType]
 export type RoleType = (typeof Role)[keyof typeof Role]

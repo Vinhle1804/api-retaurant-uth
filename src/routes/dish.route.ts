@@ -56,6 +56,7 @@ export default async function dishRoutes(fastify: FastifyInstance, options: Fast
       })
     }
   )
+  
 
   fastify.post<{
     Body: CreateDishBodyType

@@ -1,4 +1,5 @@
-import { DishStatusValues, OrderStatusValues } from '@/constants/type'
+import { DishStatusValues } from '@/constants/dishs'
+import { OrderStatusValues } from '@/constants/orders'
 import { AccountSchema } from '@/schemaValidations/account.schema'
 import { TableSchema } from '@/schemaValidations/table.schema'
 import z from 'zod'
