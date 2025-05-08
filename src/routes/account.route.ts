@@ -1,4 +1,4 @@
-import { Role } from '@/constants/type'
+import { Role } from '@/constants/roles'
 import {
   changePasswordController,
   createEmployeeAccount,

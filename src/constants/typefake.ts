@@ -1,10 +1,3 @@
-export enum PaymentMethod {
-  MoMo = "MoMo",
-  Cod = "COD",
-}
-
-export type DeliveryOption = "priority" | "fast" | "saving" | "later";
-
 // export const TokenType = {
 //   ForgotPasswordToken: 'ForgotPasswordToken',
 //   AccessToken: 'AccessToken',
@@ -53,4 +46,4 @@ export type DeliveryOption = "priority" | "fast" | "saving" | "later";
 //   OrderStatus.Paid
 // ] as const
 
-export const ManagerRoom = 'manager' as const
+// export const ManagerRoom = 'manager' as const

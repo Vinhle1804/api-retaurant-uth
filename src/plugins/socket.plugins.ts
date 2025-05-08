@@ -1,4 +1,5 @@
-import { ManagerRoom, Role } from '@/constants/type'
+import { ManagerRoom } from '@/constants/type';
+import { Role } from '@/constants/roles'
 import prisma from '@/database'
 import { AuthError } from '@/utils/errors'
 import { getChalk } from '@/utils/helpers'

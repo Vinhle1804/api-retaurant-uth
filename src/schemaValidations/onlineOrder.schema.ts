@@ -1,4 +1,5 @@
-import { DishStatusValues, OrderStatusValues } from '@/constants/type'
+import { DishStatusValues } from '@/constants/dishs'
+import { OrderStatusValues } from '@/constants/orders'
 import z from 'zod'
 
 const DishSnapshotSchema = z.object({

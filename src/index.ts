@@ -21,7 +21,7 @@ import tablesRoutes from '@/routes/table.route'
 import guestRoutes from '@/routes/guest.route'
 import orderRoutes from '@/routes/order.route'
 import { socketPlugin } from '@/plugins/socket.plugins'
-import guestOnlineRoutes from './routes/guestOnline.route'
+// import guestOnlineRoutes from './routes/guestOnline.route'
 // import guestOnlineRoutes from '@/routes/guestOnline.route'
 
 const fastify = Fastify({
@@ -83,9 +83,9 @@ const start = async () => {
     fastify.register(guestRoutes, {
       prefix: '/guest'
     })
-    fastify.register(guestOnlineRoutes, {
-      prefix: '/online'
-    })
+    // fastify.register(guestOnlineRoutes, {
+    //   prefix: '/online'
+    // })
     await initOwnerAccount()
     await fastify.listen({
       port: envConfig.PORT

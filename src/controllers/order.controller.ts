@@ -1,4 +1,6 @@
-import { DishStatus, OrderStatus, TableStatus } from '@/constants/type'
+import { DishStatus } from '@/constants/dishs'
+import { OrderStatus } from '@/constants/orders'
+import { TableStatus } from '@/constants/tables'
 import prisma from '@/database'
 import { CreateOrdersBodyType, UpdateOrderBodyType } from '@/schemaValidations/order.schema'
 

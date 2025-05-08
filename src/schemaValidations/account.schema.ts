@@ -1,4 +1,4 @@
-import { RoleValues } from '@/constants/type'
+import { RoleValues } from '@/constants/roles'
 import z from 'zod'
 
 export const AccountSchema = z.object({
