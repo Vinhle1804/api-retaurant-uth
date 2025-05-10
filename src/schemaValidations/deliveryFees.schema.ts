@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod'
 
 export const DeliveryFeesSchema = z.object({
   id: z.number(),
@@ -9,7 +9,17 @@ export const DeliveryFeesSchema = z.object({
   baseFee: z.number(), // Phí cơ bản (VNĐ)
   extraFeePerKm: z.number().default(0), // Phụ phí theo km (nếu có)
   maxDistance: z.number().default(0), // Khoảng cách tối đa áp dụng (km, 0 = không giới hạn)
-  isActive: z.boolean().default(true), // Còn áp dụng không
-  createdAt: z.date(), // Thời gian tạo
-  updatedAt: z.date(), // Thời gian cập nhật
-});
+  isActive: z.boolean().default(true) // Còn áp dụng không
+})
+export type CreateDeliveryFeesBodyType = z.TypeOf<typeof DeliveryFeesSchema>
+
+export const CreateDeliveryFeesRes = z.object({})
+
+export type CreateDeliveryFeesResType = z.TypeOf<typeof CreateDeliveryFeesRes>
+
+export const GetDeliveryFeeListRes = z.object({
+  data: z.array(DeliveryFeesSchema),
+  message: z.string()
+})
+
+export type GetDeliveryFeeListResType = z.TypeOf<typeof GetDeliveryFeeListRes>

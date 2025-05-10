@@ -1,12 +1,23 @@
+import {
+  CreateDeliveryFeesBodyType,
+  CreateDeliveryFeesRes,
+  DeliveryFeesSchema,
+  GetDeliveryFeeListRes,
+  GetDeliveryFeeListResType
+} from './../schemaValidations/deliveryFees.schema'
 import { ManagerRoom } from '@/constants/type'
 import {
+  createDeliveryFeesController,
   createOrdersController,
+  deleteDeliveryFeeController,
+  getDeliveryFeeListController,
   getOrderDetailController,
   getOrdersController,
   payOrdersController,
   updateOrderController
 } from '@/controllers/order.controller'
 import { requireLoginedHook, requireOwnerHook } from '@/hooks/auth.hooks'
+import { CreateDeliveryFeesResType } from '@/schemaValidations/deliveryFees.schema'
 import {
   CreateOrdersBody,
   CreateOrdersBodyType,
@@ -156,6 +167,64 @@ export default async function orderRoutes(fastify: FastifyInstance, options: Fas
       reply.send({
         message: `Thanh toán thành công ${result.orders.length} đơn`,
         data: result.orders as PayGuestOrdersResType['data']
+      })
+    }
+  )
+
+  fastify.post<{ Reply: CreateDeliveryFeesResType; Body: CreateDeliveryFeesBodyType }>(
+    '/fee',
+    {
+      schema: {
+        response: {
+          200: CreateDeliveryFeesRes
+        },
+        body: DeliveryFeesSchema
+      },
+      preValidation: fastify.auth([requireOwnerHook])
+    },
+    async (request, reply) => {
+      const { data } = await createDeliveryFeesController(request.body)
+
+      reply.send({
+        message: `add delivery fee successfully`,
+        data: data as CreateDeliveryFeesResType
+      })
+    }
+  )
+
+  fastify.delete<{ Params: { id: number }; Reply: { message: string } }>(
+    '/fee/:id',
+    {
+      preValidation: fastify.auth([requireOwnerHook])
+    },
+    async (request, reply) => {
+      const id = Number(request.params.id)
+
+      const result = await deleteDeliveryFeeController(id)
+
+      reply.send({ message: result.message })
+    }
+  )
+
+  fastify.get<{ Reply: GetDeliveryFeeListResType }>(
+    '/feelist',
+    {
+      schema: {
+        response: {
+          200: GetDeliveryFeeListRes
+        }
+      },
+      preValidation: fastify.auth([requireOwnerHook])
+    },
+    async (request, reply) => {
+      const result = await getDeliveryFeeListController()
+      console.log(Array.isArray(result), result);
+
+      reply.send({
+        message: 'Lấy danh sách đơn hàng thành công',
+        data: result.data as GetDeliveryFeeListResType['data']
+
+
       })
     }
   )
