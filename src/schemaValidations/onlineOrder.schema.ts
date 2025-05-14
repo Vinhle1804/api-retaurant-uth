@@ -1,6 +1,7 @@
 import { DishStatusValues } from '@/constants/dishs'
 import { OrderStatusValues } from '@/constants/orders'
 import z from 'zod'
+import { DeliveryFeesSchema } from './deliveryFees.schema'
 
 const DishSnapshotSchema = z.object({
   id: z.number(),

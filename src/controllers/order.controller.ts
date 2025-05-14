@@ -1,8 +1,11 @@
 import { DishStatus } from '@/constants/dishs'
+import { PrismaErrorCode } from '@/constants/error-reference'
 import { OrderStatus } from '@/constants/orders'
 import { TableStatus } from '@/constants/tables'
 import prisma from '@/database'
+import { CreateDeliveryFeesBodyType } from '@/schemaValidations/deliveryFees.schema'
 import { CreateOrdersBodyType, UpdateOrderBodyType } from '@/schemaValidations/order.schema'
+import { EntityError, isPrismaClientKnownRequestError } from '@/utils/errors'
 
 export const createOrdersController = async (orderHandlerId: number, body: CreateOrdersBodyType) => {
   const { guestId, orders } = body
@@ -237,3 +240,74 @@ export const updateOrderController = async (
     socketId: socketRecord?.socketId
   }
 }
+
+export const createDeliveryFeesController = async (body: CreateDeliveryFeesBodyType) => {
+  try {
+    const deliveryFee = await prisma.deliveryFees.create({
+      data: {
+        code: body.code,
+        label: body.label,
+        description: body.description,
+        estimatedTime: body.estimatedTime,
+        baseFee: body.baseFee,
+        extraFeePerKm: body.extraFeePerKm,
+        maxDistance: body.maxDistance,
+        isActive: body.isActive,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    })
+    return {
+      success: true,
+      message: 'created delivery fee successfully',
+      data: deliveryFee
+    }
+  } catch (error: any) {
+    if (isPrismaClientKnownRequestError(error)) {
+      console.log(error)
+      throw new EntityError([{ field: 'e', message: 'cos loi r' }])
+    }
+    throw error
+  }
+}
+export const deleteDeliveryFeeController = async (id: number) => {
+  try {
+    const deleted = await prisma.deliveryFees.delete({
+      where: { id }
+    })
+
+    return {
+      success: true,
+      message: 'Deleted delivery fee successfully',
+      data: deleted
+    }
+  } catch (error: any) {
+    if (isPrismaClientKnownRequestError(error)) {
+      // Nếu không tìm thấy bản ghi
+      if (error.code === 'P2025') {
+        throw new EntityError([{ field: 'id', message: 'Delivery fee not found' }])
+      }
+    }
+    throw error
+  }
+}
+export const getDeliveryFeeListController = async (isActive?: boolean) => {
+  try {
+    const deliveryFees = await prisma.deliveryFees.findMany({
+      where: typeof isActive === 'boolean' ? { isActive } : undefined,
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+
+    return {
+      success: true,
+      message: 'Fetched delivery fee list successfully',
+      data: deliveryFees
+    }
+  } catch (error: any) {
+    console.error('Error fetching delivery fee list:', error)
+    throw new Error('Failed to fetch delivery fee list')
+  }
+}
+
