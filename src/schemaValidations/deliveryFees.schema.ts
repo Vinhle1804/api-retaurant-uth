@@ -13,7 +13,10 @@ export const DeliveryFeesSchema = z.object({
 })
 export type CreateDeliveryFeesBodyType = z.TypeOf<typeof DeliveryFeesSchema>
 
-export const CreateDeliveryFeesRes = z.object({})
+export const CreateDeliveryFeesRes = z.object({
+  message: z.string(),
+  data: DeliveryFeesSchema
+})
 
 export type CreateDeliveryFeesResType = z.TypeOf<typeof CreateDeliveryFeesRes>
 

@@ -184,10 +184,11 @@ export default async function orderRoutes(fastify: FastifyInstance, options: Fas
     },
     async (request, reply) => {
       const { data } = await createDeliveryFeesController(request.body)
+      
 
       reply.send({
-        message: `add delivery fee successfully`,
-        data: data as CreateDeliveryFeesResType
+        data: data as CreateDeliveryFeesResType['data'],
+        message: `add delivery fee successfully`
       })
     }
   )
@@ -214,14 +215,13 @@ export default async function orderRoutes(fastify: FastifyInstance, options: Fas
           200: GetDeliveryFeeListRes
         }
       },
-      preValidation: fastify.auth([requireOwnerHook])
     },
     async (request, reply) => {
       const result = await getDeliveryFeeListController()
       console.log(Array.isArray(result), result);
 
       reply.send({
-        message: 'Lấy danh sách đơn hàng thành công',
+        message: 'Lấy danh sách delivery options thành công',
         data: result.data as GetDeliveryFeeListResType['data']
 
 

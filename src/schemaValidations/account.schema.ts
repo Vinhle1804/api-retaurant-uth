@@ -1,5 +1,7 @@
 import { RoleValues } from '@/constants/roles'
 import z from 'zod'
+import { OrderOnlineSchema } from './onlineOrder.schema'
+import {PaymentMethodValues } from '@/constants/type'
 
 export const AccountSchema = z.object({
   id: z.number(),
@@ -161,3 +163,38 @@ export const CreateGuestRes = z.object({
 })
 
 export type CreateGuestResType = z.TypeOf<typeof CreateGuestRes>
+
+
+export const CreateOrdersBody = z.object({
+  items: z.array(
+    z.object({
+      dishId: z.number(),
+      quantity: z.number(),
+    })
+  ),
+  deliveryAddress: z.object({
+    id: z.string(),
+    fullName: z.string(),
+    phone: z.string(),
+    addressDetail: z.string(),
+    province: z.string(),
+    district: z.string(),
+    ward: z.string(),
+    provinceName: z.string(),
+    districtName: z.string(),
+    notes: z.string(),
+  }),
+  deliveryOption: z.string(), 
+  paymentMethod: z.enum(PaymentMethodValues),  // Có thể đổi thành enum nếu cần
+  utensilsNeeded: z.boolean(),
+});
+
+export type CreateOrdersBodyType = z.TypeOf<typeof CreateOrdersBody>
+
+export const CreateOrdersRes = z.object({
+  message: z.string(),
+  data: z.array(OrderOnlineSchema)
+})
+
+export type CreateOrdersResType = z.TypeOf<typeof CreateOrdersRes>
+
