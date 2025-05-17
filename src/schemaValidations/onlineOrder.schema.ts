@@ -15,7 +15,7 @@ const DishSnapshotSchema = z.object({
   updatedAt: z.date()
 })
 
-// 🧩 Item món ăn trong đơn hàng online
+// Item món ăn trong đơn hàng online
 export const OrderOnlineDishSchema = z.object({
   id: z.number(),
   orderOnlineId: z.number(),
@@ -39,6 +39,7 @@ export const OrderOnlineSchema = z.object({
     })
     .nullable(),
   address: z.string(),
+    deliveryOption: z.string(), 
   status: z.enum(OrderStatusValues),
   paymentMethod: z.string(),
   note: z.string().nullable(),

@@ -1,3 +1,5 @@
+// import { createOrderOnlineController } from '@/controllers/account.controller';
+import { CreateOrderOnlineBody } from './../schemaValidations/account.schema';
 import {
   CreateDeliveryFeesBodyType,
   CreateDeliveryFeesRes,
@@ -17,6 +19,7 @@ import {
   updateOrderController
 } from '@/controllers/order.controller'
 import { requireLoginedHook, requireOwnerHook } from '@/hooks/auth.hooks'
+import { CreateOrderOnlineBodyType, CreateOrderOnlineRes, CreateOrderOnlineResType } from '@/schemaValidations/account.schema'
 import { CreateDeliveryFeesResType } from '@/schemaValidations/deliveryFees.schema'
 import {
   CreateOrdersBody,
@@ -184,7 +187,6 @@ export default async function orderRoutes(fastify: FastifyInstance, options: Fas
     },
     async (request, reply) => {
       const { data } = await createDeliveryFeesController(request.body)
-      
 
       reply.send({
         data: data as CreateDeliveryFeesResType['data'],
@@ -214,18 +216,38 @@ export default async function orderRoutes(fastify: FastifyInstance, options: Fas
         response: {
           200: GetDeliveryFeeListRes
         }
-      },
+      }
     },
     async (request, reply) => {
       const result = await getDeliveryFeeListController()
-      console.log(Array.isArray(result), result);
+      console.log(Array.isArray(result), result)
 
       reply.send({
         message: 'Lấy danh sách delivery options thành công',
         data: result.data as GetDeliveryFeeListResType['data']
-
-
       })
     }
   )
+  // fastify.post<{ Reply: CreateOrderOnlineResType; Body: CreateOrderOnlineBodyType }>(
+  //   '/online',
+  //   {
+  //     schema: {
+  //       response: {
+  //         200: CreateOrderOnlineRes
+  //       },
+  //       body: CreateOrderOnlineBody
+  //     },
+  //     preValidation: fastify.auth([requireLoginedHook])
+  //   },
+  //   async (request, reply) => {
+  //     const accountId = request.decodedAccessToken?.userId;
+  //     const { data } = await createOrderOnlineController(accountId as number,request.body)
+
+  //     reply.send({
+  //       data: data as CreateOrderOnlineResType['data'],
+  //       message: `add delivery fee successfully`
+  //     })
+  //   }
+  // )
+  
 }
