@@ -1,6 +1,8 @@
+import { CreateAddressRes, CreateAddressBody } from './../schemaValidations/account.schema'
 import { Role } from '@/constants/roles'
 import {
   changePasswordController,
+  createAddressController,
   createEmployeeAccount,
   createGuestController,
   deleteEmployeeAccount,
@@ -21,6 +23,8 @@ import {
   AccountResType,
   ChangePasswordBody,
   ChangePasswordBodyType,
+  CreateAddressBodyType,
+  CreateAddressResType,
   CreateEmployeeAccountBody,
   CreateEmployeeAccountBodyType,
   CreateGuestBody,
@@ -246,6 +250,28 @@ export default async function accountRoutes(fastify: FastifyInstance, options: F
       reply.send({
         message: 'Lấy danh sách khách thành công',
         data: result as GetListGuestsResType['data']
+      })
+    }
+  )
+
+  fastify.post<{ Reply: CreateAddressResType; Body: CreateAddressBodyType }>(
+    '/address',
+    {
+      schema: {
+        response: {
+          200: CreateAddressRes
+        },
+        body: CreateAddressBody
+      },
+      preValidation: fastify.auth([requireLoginedHook])
+    },
+    async (request, reply) => {
+      const accountId = request.decodedAccessToken?.userId
+      const result = await createAddressController(accountId as number, request.body)
+      console.log(result)
+      reply.send({
+        message: 'Tạo dia chi giao hang thanh cong',
+        data: result
       })
     }
   )

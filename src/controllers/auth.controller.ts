@@ -75,7 +75,7 @@ export const refreshTokenController = async (refreshToken: string) => {
   })
   const newRefreshToken = signRefreshToken({
     userId: (account as Account).id,
-    role:(account as Account).role as RoleType,
+    role: (account as Account).role as RoleType,
     exp: decodedRefreshToken.exp
   })
   await prisma.refreshToken.delete({
@@ -85,7 +85,7 @@ export const refreshTokenController = async (refreshToken: string) => {
   })
   await prisma.refreshToken.create({
     data: {
-      accountId:(account as Account).id,
+      accountId: (account as Account).id,
       token: newRefreshToken,
       expiresAt: refreshTokenDoc.expiresAt
     }

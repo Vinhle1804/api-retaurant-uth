@@ -1,7 +1,7 @@
 import { RoleValues } from '@/constants/roles'
 import z from 'zod'
 import { OrderOnlineSchema } from './onlineOrder.schema'
-import {PaymentMethodValues } from '@/constants/type'
+import { PaymentMethodValues } from '@/constants/type'
 
 export const AccountSchema = z.object({
   id: z.number(),
@@ -12,6 +12,30 @@ export const AccountSchema = z.object({
 })
 
 export type AccountType = z.TypeOf<typeof AccountSchema>
+
+export const AddressSchema = z.object({
+  id: z.number(),
+  accountId: z.number(),
+  recipientName: z.string().min(1, 'Tên người nhận không được để trống'),
+  recipientPhone: z
+    .string()
+    .min(10, 'Số điện thoại phải có ít nhất 10 số')
+    .max(15, 'Số điện thoại không hợp lệ')
+    .regex(/^[0-9]+$/, 'Số điện thoại chỉ được chứa số'),
+
+  province: z.string().min(1, 'Mã tỉnh không được để trống'),
+  provinceName: z.string().min(1, 'Tên tỉnh không được để trống'),
+
+  district: z.string().min(1, 'Mã quận/huyện không được để trống'),
+  districtName: z.string().min(1, 'Tên quận/huyện không được để trống'),
+
+  ward: z.string().min(1, 'Mã phường/xã không được để trống'),
+  wardName: z.string().min(1, 'Tên phường/xã không được để trống'),
+
+  addressDetail: z.string().min(1, 'Địa chỉ chi tiết không được để trống'),
+  addressNotes: z.string().nullable()
+})
+export type AddressType = z.TypeOf<typeof AddressSchema>
 
 export const AccountListRes = z.object({
   data: z.array(AccountSchema),
@@ -36,7 +60,7 @@ export const CreateEmployeeAccountBody = z
     avatar: z.string().url().optional(),
     password: z.string().min(6).max(100),
     confirmPassword: z.string().min(6).max(100),
-    role:  z.enum(RoleValues).optional()
+    role: z.enum(RoleValues).optional()
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -59,8 +83,7 @@ export const UpdateEmployeeAccountBody = z
     changePassword: z.boolean().optional(),
     password: z.string().min(6).max(100).optional(),
     confirmPassword: z.string().min(6).max(100).optional(),
-    role:  z.enum(RoleValues).optional()
-
+    role: z.enum(RoleValues).optional()
   })
   .strict()
   .superRefine(({ confirmPassword, password, changePassword }, ctx) => {
@@ -96,9 +119,7 @@ export const ChangePasswordBody = z
   .object({
     oldPassword: z.string().min(6).max(100),
     password: z.string().min(6).max(100),
-    confirmPassword: z.string().min(6).max(100),
-    
-    
+    confirmPassword: z.string().min(6).max(100)
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -164,37 +185,62 @@ export const CreateGuestRes = z.object({
 
 export type CreateGuestResType = z.TypeOf<typeof CreateGuestRes>
 
-
-export const CreateOrdersBody = z.object({
+export const CreateOrderOnlineBody = z.object({
   items: z.array(
     z.object({
       dishId: z.number(),
-      quantity: z.number(),
+      quantity: z.number()
     })
   ),
   deliveryAddress: z.object({
-    id: z.string(),
-    fullName: z.string(),
-    phone: z.string(),
+    id: z.number(),
     addressDetail: z.string(),
     province: z.string(),
     district: z.string(),
     ward: z.string(),
     provinceName: z.string(),
     districtName: z.string(),
-    notes: z.string(),
+    adressNotes: z.string().nullable()
   }),
-  deliveryOption: z.string(), 
-  paymentMethod: z.enum(PaymentMethodValues),  // Có thể đổi thành enum nếu cần
-  utensilsNeeded: z.boolean(),
-});
+  deliveryOption: z.string(),
+  paymentMethod: z.enum(PaymentMethodValues), // Có thể đổi thành enum nếu cần
+  utensilsNeeded: z.boolean()
+})
 
-export type CreateOrdersBodyType = z.TypeOf<typeof CreateOrdersBody>
+export type CreateOrderOnlineBodyType = z.TypeOf<typeof CreateOrderOnlineBody>
 
-export const CreateOrdersRes = z.object({
+export const CreateOrderOnlineRes = z.object({
   message: z.string(),
   data: z.array(OrderOnlineSchema)
 })
 
-export type CreateOrdersResType = z.TypeOf<typeof CreateOrdersRes>
+export type CreateOrderOnlineResType = z.TypeOf<typeof CreateOrderOnlineRes>
 
+export const CreateAddressBody = z.object({
+  recipientName: z.string().min(1, 'Tên người nhận không được để trống'),
+  recipientPhone: z
+    .string()
+    .min(10, 'Số điện thoại phải có ít nhất 10 số')
+    .max(15, 'Số điện thoại không hợp lệ')
+    .regex(/^[0-9]+$/, 'Số điện thoại chỉ được chứa số'),
+
+  province: z.string().min(1, 'Mã tỉnh không được để trống'),
+  provinceName: z.string().min(1, 'Tên tỉnh không được để trống'),
+
+  district: z.string().min(1, 'Mã quận/huyện không được để trống'),
+  districtName: z.string().min(1, 'Tên quận/huyện không được để trống'),
+
+  ward: z.string().min(1, 'Mã phường/xã không được để trống'),
+  wardName: z.string().min(1, 'Tên phường/xã không được để trống'),
+
+  addressDetail: z.string().min(1, 'Địa chỉ chi tiết không được để trống'),
+  addressNotes: z.string().nullable()
+})
+export type CreateAddressBodyType = z.infer<typeof CreateAddressBody>
+
+export const CreateAddressRes = z.object({
+  message: z.string(),
+  data: AddressSchema
+})
+
+export type CreateAddressResType = z.infer<typeof CreateAddressRes>

@@ -14,22 +14,26 @@ datasource db {
 }
 
 model Account {
-  id           Int            @id @default(autoincrement())
-  name         String
-  email        String         @unique
-  password     String
-  avatar       String?
-  role         String         @default("Employee") // Owner, Employee, GuestOnline
-  orders       Order[]        @relation("OrderAccount")
-  ordersOnline OrderOnline[] // Mối quan hệ một khách hàng có thể có nhiều đơn hàng online
-  employees    Account[]      @relation("OwnerEmployee")
-  owner        Account?       @relation("OwnerEmployee", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  ownerId      Int?
-  refreshToken RefreshToken[]
-  sockets      Socket[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  Order        Order[]
+  id               Int               @id @default(autoincrement())
+  name             String
+  email            String            @unique
+  phone            String?
+  password         String
+  avatar           String?
+  role             String            @default("Employee") // Owner, Employee, GuestOnline
+  orders           Order[]           @relation("OrderAccount")
+  ordersOnline     OrderOnline[] // Mối quan hệ một khách hàng có thể có nhiều đơn hàng online
+  handledOrders    Order[]           @relation("OrderHandlerRelation")
+  employees        Account[]         @relation("OwnerEmployee")
+  owner            Account?          @relation("OwnerEmployee", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  ownerId          Int?
+  refreshToken     RefreshToken[]
+  sockets          Socket[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  addresses        DeliveryAddress[] @relation("AccountAddresses") // One-to-many: nhiều địa chỉ thuộc 1 account
+  defaultAddressId Int? // Id địa chỉ mặc định
+  defaultAddress   DeliveryAddress?  @relation(fields: [defaultAddressId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 }
 
 model Dish {
@@ -81,7 +85,7 @@ model Order {
   dishSnapshot   DishSnapshot @relation("DishOrder", fields: [dishSnapshotId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   dishSnapshotId Int          @unique
   quantity       Int
-  orderHandler   Account?     @relation(fields: [orderHandlerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  orderHandler   Account?     @relation("OrderHandlerRelation", fields: [orderHandlerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   orderHandlerId Int?
   status         String       @default("Pending")
   createdAt      DateTime     @default(now())
@@ -118,18 +122,20 @@ model Socket {
 }
 
 model OrderOnline {
-  id             Int               @id @default(autoincrement())
-  trackingNumber String? // Số theo dõi đơn hàng (có thể null nếu chưa có số theo dõi)
-  accountId      Int // Liên kết với tài khoản khách hàng online nếu có
-  account        Account           @relation(fields: [accountId], references: [id])
-  address        String // Địa chỉ giao hàng
-  status         String            @default("Pending") // Trạng thái đơn hàng: Pending, Shipped, Delivered
-  paymentMethod  String // Phương thức thanh toán: Credit Card, COD, etc.
-  totalPrice     Int // Tổng giá trị đơn hàng
-  items          OrderOnlineItem[] // Mối quan hệ một đơn hàng có thể có nhiều món ăn
-  note           String
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id                Int               @id @default(autoincrement())
+  trackingNumber    String? // Số theo dõi đơn hàng (có thể null nếu chưa có số theo dõi)
+  accountId         Int // Liên kết với tài khoản khách hàng online nếu có
+  account           Account           @relation(fields: [accountId], references: [id])
+  deliveryAddressId Int // Khóa ngoại đến DeliveryAddress
+  deliveryAddress   DeliveryAddress   @relation(fields: [deliveryAddressId], references: [id])
+  status            String            @default("Pending") // Trạng thái đơn hàng: Pending, Shipped, Delivered
+  paymentMethod     String // Phương thức thanh toán: Credit Card, COD, etc.
+  deliveryOption    String
+  totalPrice        Int // Tổng giá trị đơn hàng
+  items             OrderOnlineItem[] // Mối quan hệ một đơn hàng có thể có nhiều món ăn
+  note              String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model OrderOnlineItem {
@@ -143,15 +149,38 @@ model OrderOnlineItem {
 }
 
 model DeliveryFees {
-  id               Int      @id @default(autoincrement()) // Tự động tăng cho id
-  code             String   @unique                     // Mã định danh: 'fast', 'priority', 'economy'
-  label            String   // Tên hiển thị: 'Giao nhanh', 'Ưu tiên'
-  description      String?  // Mô tả chi tiết (có thể null)
-  estimatedTime    String?  // Ví dụ: '30 phút' (có thể null)
-  baseFee          Int      // Phí cơ bản (VNĐ)
-  extraFeePerKm    Int      @default(0) // Phụ phí theo km (nếu cần)
-  maxDistance      Int      @default(0) // Khoảng cách tối đa áp dụng (km, 0 = không giới hạn)
-  isActive         Boolean  @default(true) // Còn áp dụng không
-  createdAt        DateTime @default(now()) // Thời gian tạo
-  updatedAt        DateTime @updatedAt // Thời gian cập nhật
+  id            Int      @id @default(autoincrement()) // Tự động tăng cho id
+  code          String   @unique // Mã định danh: 'fast', 'priority', 'economy'
+  label         String // Tên hiển thị: 'Giao nhanh', 'Ưu tiên'
+  description   String? // Mô tả chi tiết (có thể null)
+  estimatedTime String? // Ví dụ: '30 phút' (có thể null)
+  baseFee       Int // Phí cơ bản (VNĐ)
+  extraFeePerKm Int      @default(0) // Phụ phí theo km (nếu cần)
+  maxDistance   Int      @default(0) // Khoảng cách tối đa áp dụng (km, 0 = không giới hạn)
+  isActive      Boolean  @default(true) // Còn áp dụng không
+  createdAt     DateTime @default(now()) // Thời gian tạo
+  updatedAt     DateTime @updatedAt // Thời gian cập nhật
+}
+
+model DeliveryAddress {
+  id   Int    @id @default(autoincrement())
+  accountId Int // Khóa ngoại
+  account   Account @relation("AccountAddresses", fields: [accountId], references: [id], onDelete: Cascade)
+
+  recipientName  String // tên người nhận tại địa chỉ này
+  recipientPhone String // số điện thoại người nhận tại địa chỉ này
+  province       String
+  provinceName   String
+  district       String
+  districtName   String
+  ward           String
+  wardName       String // tên phường/xã đầy đủ
+  addressDetail  String
+  addressNotes   String? // có thể null
+  orderOnline    OrderOnline[] // nếu một địa chỉ có thể dùng cho nhiều đơn
+  // Quan hệ với tài khoản
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Account   Account[]
 }
