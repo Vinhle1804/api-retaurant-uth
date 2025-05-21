@@ -1,7 +1,7 @@
 import { RoleValues } from '@/constants/roles'
 import z from 'zod'
 import { OrderOnlineSchema } from './onlineOrder.schema'
-import {PaymentMethodValues } from '@/constants/type'
+import { PaymentMethodValues } from '@/constants/type'
 
 export const AccountSchema = z.object({
   id: z.number(),
@@ -12,7 +12,6 @@ export const AccountSchema = z.object({
 })
 
 export type AccountType = z.TypeOf<typeof AccountSchema>
-
 
 export const AddressSchema = z.object({
   id: z.number(),
@@ -34,8 +33,8 @@ export const AddressSchema = z.object({
   wardName: z.string().min(1, 'Tên phường/xã không được để trống'),
 
   addressDetail: z.string().min(1, 'Địa chỉ chi tiết không được để trống'),
-  addressNotes: z.string().optional(),
-});
+  addressNotes: z.string().nullable()
+})
 export type AddressType = z.TypeOf<typeof AddressSchema>
 
 export const AccountListRes = z.object({
@@ -61,7 +60,7 @@ export const CreateEmployeeAccountBody = z
     avatar: z.string().url().optional(),
     password: z.string().min(6).max(100),
     confirmPassword: z.string().min(6).max(100),
-    role:  z.enum(RoleValues).optional()
+    role: z.enum(RoleValues).optional()
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -84,8 +83,7 @@ export const UpdateEmployeeAccountBody = z
     changePassword: z.boolean().optional(),
     password: z.string().min(6).max(100).optional(),
     confirmPassword: z.string().min(6).max(100).optional(),
-    role:  z.enum(RoleValues).optional()
-
+    role: z.enum(RoleValues).optional()
   })
   .strict()
   .superRefine(({ confirmPassword, password, changePassword }, ctx) => {
@@ -121,9 +119,7 @@ export const ChangePasswordBody = z
   .object({
     oldPassword: z.string().min(6).max(100),
     password: z.string().min(6).max(100),
-    confirmPassword: z.string().min(6).max(100),
-    
-    
+    confirmPassword: z.string().min(6).max(100)
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -189,28 +185,27 @@ export const CreateGuestRes = z.object({
 
 export type CreateGuestResType = z.TypeOf<typeof CreateGuestRes>
 
-
 export const CreateOrderOnlineBody = z.object({
   items: z.array(
     z.object({
       dishId: z.number(),
-      quantity: z.number(),
+      quantity: z.number()
     })
   ),
   deliveryAddress: z.object({
-    id: z.string(),
+    id: z.number(),
     addressDetail: z.string(),
     province: z.string(),
     district: z.string(),
     ward: z.string(),
     provinceName: z.string(),
     districtName: z.string(),
-    adressNotes: z.string().optional(),
+    adressNotes: z.string().nullable()
   }),
-  deliveryOption: z.string(), 
-  paymentMethod: z.enum(PaymentMethodValues),  // Có thể đổi thành enum nếu cần
-  utensilsNeeded: z.boolean(),
-});
+  deliveryOption: z.string(),
+  paymentMethod: z.enum(PaymentMethodValues), // Có thể đổi thành enum nếu cần
+  utensilsNeeded: z.boolean()
+})
 
 export type CreateOrderOnlineBodyType = z.TypeOf<typeof CreateOrderOnlineBody>
 
@@ -220,7 +215,6 @@ export const CreateOrderOnlineRes = z.object({
 })
 
 export type CreateOrderOnlineResType = z.TypeOf<typeof CreateOrderOnlineRes>
-
 
 export const CreateAddressBody = z.object({
   recipientName: z.string().min(1, 'Tên người nhận không được để trống'),
@@ -240,14 +234,13 @@ export const CreateAddressBody = z.object({
   wardName: z.string().min(1, 'Tên phường/xã không được để trống'),
 
   addressDetail: z.string().min(1, 'Địa chỉ chi tiết không được để trống'),
-  addressNotes: z.string().optional(),
-});;
-export type CreateAddressBodyType = z.infer<typeof CreateAddressBody>;
+  addressNotes: z.string().nullable()
+})
+export type CreateAddressBodyType = z.infer<typeof CreateAddressBody>
 
-export const CreateAddressRes = AddressSchema.extend({
+export const CreateAddressRes = z.object({
   message: z.string(),
-  data:z.array(AddressSchema),
- 
-});
-export type CreateAddressResType = z.infer<typeof CreateAddressRes>;
+  data: AddressSchema
+})
 
+export type CreateAddressResType = z.infer<typeof CreateAddressRes>

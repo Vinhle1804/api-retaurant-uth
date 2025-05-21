@@ -1,4 +1,4 @@
-import { CreateAddressRes, CreateAddressBody } from './../schemaValidations/account.schema';
+import { CreateAddressRes, CreateAddressBody } from './../schemaValidations/account.schema'
 import { Role } from '@/constants/roles'
 import {
   changePasswordController,
@@ -254,7 +254,7 @@ export default async function accountRoutes(fastify: FastifyInstance, options: F
     }
   )
 
-   fastify.post<{ Reply: CreateAddressResType; Body: CreateAddressBodyType }>(
+  fastify.post<{ Reply: CreateAddressResType; Body: CreateAddressBodyType }>(
     '/address',
     {
       schema: {
@@ -271,9 +271,8 @@ export default async function accountRoutes(fastify: FastifyInstance, options: F
       console.log(result)
       reply.send({
         message: 'Tạo dia chi giao hang thanh cong',
-        data: result  as CreateAddressResType['data']
+        data: result
       })
     }
   )
-
 }

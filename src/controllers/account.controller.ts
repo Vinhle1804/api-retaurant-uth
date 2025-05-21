@@ -235,16 +235,17 @@ export const createAddressController = async (accountId: number, body: CreateAdd
         ward: body.ward,
         wardName: body.wardName,
         addressDetail: body.addressDetail,
-        addressNotes: body.addressNotes,
+        addressNotes: body.addressNotes || null,
         createdAt: new Date(),
         updatedAt: new Date()
       }
     })
+    console.log(newAddress)
 
     return newAddress
   } catch (error: any) {
     if (error.code === PrismaErrorCode.UniqueConstraintViolation) {
-      throw new EntityError([{ field: 'addressDetail', message: 'Địa chỉ đã tồn tại hoặc bị trùng' }])
+      throw new Error('Địa chỉ đã tồn tại hoặc bị trùng!')
     }
     throw error
   }

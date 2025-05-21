@@ -32,7 +32,7 @@ model Account {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   addresses        DeliveryAddress[] @relation("AccountAddresses") // One-to-many: nhiều địa chỉ thuộc 1 account
-  defaultAddressId String? // Id địa chỉ mặc định
+  defaultAddressId Int? // Id địa chỉ mặc định
   defaultAddress   DeliveryAddress?  @relation(fields: [defaultAddressId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 }
 
@@ -126,7 +126,7 @@ model OrderOnline {
   trackingNumber    String? // Số theo dõi đơn hàng (có thể null nếu chưa có số theo dõi)
   accountId         Int // Liên kết với tài khoản khách hàng online nếu có
   account           Account           @relation(fields: [accountId], references: [id])
-  deliveryAddressId String // Khóa ngoại đến DeliveryAddress
+  deliveryAddressId Int // Khóa ngoại đến DeliveryAddress
   deliveryAddress   DeliveryAddress   @relation(fields: [deliveryAddressId], references: [id])
   status            String            @default("Pending") // Trạng thái đơn hàng: Pending, Shipped, Delivered
   paymentMethod     String // Phương thức thanh toán: Credit Card, COD, etc.
@@ -163,7 +163,7 @@ model DeliveryFees {
 }
 
 model DeliveryAddress {
-  id        String  @id @default(cuid())
+  id   Int    @id @default(autoincrement())
   accountId Int // Khóa ngoại
   account   Account @relation("AccountAddresses", fields: [accountId], references: [id], onDelete: Cascade)
 
