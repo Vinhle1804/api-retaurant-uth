@@ -244,3 +244,28 @@ export const CreateAddressRes = z.object({
 })
 
 export type CreateAddressResType = z.infer<typeof CreateAddressRes>
+
+export const GetAllAddressesRes = z.object({
+  message: z.string(),
+  data: z.array(AddressSchema)
+})
+
+export type GetAllAddressesResType = z.infer<typeof GetAllAddressesRes>
+
+export const GetAddressByIdRes = z.object({
+  message: z.string(),
+  data: AddressSchema
+})
+
+export type GetAddressByIdResType = z.infer<typeof GetAddressByIdRes>
+
+export const UpdateAddressBody = AddressSchema.partial().omit({ accountId: true, id: true })
+
+export type UpdateAddressBodyType = z.infer<typeof UpdateAddressBody>
+
+export const UpdateAddressRes = z.object({
+  message: z.string(),
+  data: AddressSchema
+});
+
+export type UpdateAddressResType = z.infer<typeof UpdateAddressRes>

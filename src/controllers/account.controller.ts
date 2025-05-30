@@ -7,6 +7,7 @@ import { Role } from '@/constants/roles'
 import { TableStatus } from '@/constants/tables'
 import prisma from '@/database'
 import {
+  AddressType,
   ChangePasswordBodyType,
   CreateAddressBodyType,
   CreateEmployeeAccountBodyType,
@@ -240,6 +241,7 @@ export const createAddressController = async (accountId: number, body: CreateAdd
         updatedAt: new Date()
       }
     })
+    console.log(typeof newAddress.id)
     console.log(newAddress)
 
     return newAddress
@@ -249,6 +251,49 @@ export const createAddressController = async (accountId: number, body: CreateAdd
     }
     throw error
   }
+}
+
+export const getAddressList = async (accountId: number) => {
+  const address = await prisma.deliveryAddress.findMany({
+    orderBy: {
+      createdAt: 'desc'
+    },
+    where: {
+      accountId: accountId
+    }
+  })
+  return address
+}
+
+export const getAddressById = async (id: number) => {
+  const address = await prisma.deliveryAddress.findUnique({
+    where: { id }
+  })
+
+  if (!address) throw new Error('Không tìm thấy địa chỉ')
+
+  return address
+}
+
+export const updateAddressController = async (
+  accountId: number,
+  id: number,
+  updateData: Partial<Omit<AddressType, 'id' | 'accountId'>>
+) => {
+  // Tìm địa chỉ theo id và accountId để đảm bảo user có quyền update
+  const address = await prisma.deliveryAddress.findFirst({
+    where: { id, accountId }
+  })
+
+  if (!address) throw new Error('Không tìm thấy địa chỉ hoặc bạn không có quyền chỉnh sửa')
+
+  // Thực hiện update
+  const updatedAddress = await prisma.deliveryAddress.update({
+    where: { id },
+    data: updateData
+  })
+
+  return updatedAddress
 }
 
 // export const createOrderOnlineController = async (accountId: number, body: CreateOrderOnlineBodyType) => {

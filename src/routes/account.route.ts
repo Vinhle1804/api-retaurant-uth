@@ -1,4 +1,14 @@
-import { CreateAddressRes, CreateAddressBody } from './../schemaValidations/account.schema'
+import {
+  CreateAddressRes,
+  CreateAddressBody,
+  GetAllAddressesRes,
+  GetAllAddressesResType,
+  GetAddressByIdRes,
+  UpdateAddressBodyType,
+  UpdateAddressResType,
+  UpdateAddressRes,
+  UpdateAddressBody
+} from './../schemaValidations/account.schema'
 import { Role } from '@/constants/roles'
 import {
   changePasswordController,
@@ -7,9 +17,12 @@ import {
   createGuestController,
   deleteEmployeeAccount,
   getAccountList,
+  getAddressById,
+  getAddressList,
   getEmployeeAccount,
   getGuestList,
   getMeController,
+  updateAddressController,
   updateEmployeeAccount,
   updateMeController
 } from '@/controllers/account.controller'
@@ -272,6 +285,81 @@ export default async function accountRoutes(fastify: FastifyInstance, options: F
       reply.send({
         message: 'Tạo dia chi giao hang thanh cong',
         data: result
+      })
+    }
+  )
+  fastify.get<{ Reply: GetAllAddressesResType }>(
+    '/addresses',
+    {
+      schema: {
+        response: {
+          200: GetAllAddressesRes
+        }
+      },
+      preValidation: fastify.auth([requireLoginedHook])
+    },
+    async (request, reply) => {
+      const accountId = request.decodedAccessToken?.userId
+      const result = await getAddressList(accountId as number)
+      console.log(result)
+      reply.send({
+        message: 'Lay tat ca dia chi thanh cong',
+        data: result
+      })
+    }
+  )
+  fastify.get<{
+    Params: { id: string }
+  }>(
+    '/address/:id',
+    {
+      schema: {
+        response: {
+          200: GetAddressByIdRes
+        }
+      }
+    },
+    async (request, reply) => {
+      const id = parseInt(request.params.id)
+
+      if (isNaN(id)) {
+        return reply.code(400).send({ message: 'ID không hợp lệ' })
+      }
+
+      try {
+        const address = await getAddressById(id)
+
+        reply.send({
+          message: 'Lấy địa chỉ thành công',
+          data: address
+        })
+      } catch (error) {
+        reply.code(404).send({ message: 'Địa chỉ không tồn tại' })
+      }
+    }
+  )
+
+  fastify.put<{
+    Reply: UpdateAddressResType
+    Body: UpdateAddressBodyType
+    Params: { id: string }
+  }>(
+    '/address/:id',
+    {
+      schema: {
+        response: {
+          200: UpdateAddressRes
+        },
+        body: UpdateAddressBody
+      }
+    },
+    async (request, reply) => {
+      const accountId = request.decodedAccessToken?.userId
+      const id = parseInt(request.params.id)
+      const result = await updateAddressController(accountId as number, id, request.body)
+      reply.send({
+        data: result,
+        message: 'Cập nhật thông tin thành công'
       })
     }
   )
