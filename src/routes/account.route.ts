@@ -7,7 +7,14 @@ import {
   UpdateAddressBodyType,
   UpdateAddressResType,
   UpdateAddressRes,
-  UpdateAddressBody
+  UpdateAddressBody,
+  AddressResType,
+  AddressIdParamType,
+  AddressRes,
+  AddressIdParam,
+  UpdateAddressDefaultResType,
+  UpdateAddressDefaultRes,
+  GetAddressByIdResType
 } from './../schemaValidations/account.schema'
 import { Role } from '@/constants/roles'
 import {
@@ -15,6 +22,7 @@ import {
   createAddressController,
   createEmployeeAccount,
   createGuestController,
+  deleteAddressController,
   deleteEmployeeAccount,
   getAccountList,
   getAddressById,
@@ -22,6 +30,7 @@ import {
   getEmployeeAccount,
   getGuestList,
   getMeController,
+  setAddressDefaultController,
   updateAddressController,
   updateEmployeeAccount,
   updateMeController
@@ -54,6 +63,7 @@ import {
   UpdateMeBodyType
 } from '@/schemaValidations/account.schema'
 import { FastifyInstance, FastifyPluginOptions } from 'fastify'
+import { request } from 'http'
 
 export default async function accountRoutes(fastify: FastifyInstance, options: FastifyPluginOptions) {
   fastify.addHook('preValidation', fastify.auth([requireLoginedHook]))
@@ -309,6 +319,7 @@ export default async function accountRoutes(fastify: FastifyInstance, options: F
     }
   )
   fastify.get<{
+    Reply: GetAddressByIdResType
     Params: { id: string }
   }>(
     '/address/:id',
@@ -317,25 +328,18 @@ export default async function accountRoutes(fastify: FastifyInstance, options: F
         response: {
           200: GetAddressByIdRes
         }
-      }
+      },
+            preValidation: fastify.auth([requireLoginedHook])
     },
     async (request, reply) => {
       const id = parseInt(request.params.id)
 
-      if (isNaN(id)) {
-        return reply.code(400).send({ message: 'ID không hợp lệ' })
-      }
+      const result = await getAddressById(id)
 
-      try {
-        const address = await getAddressById(id)
-
-        reply.send({
-          message: 'Lấy địa chỉ thành công',
-          data: address
-        })
-      } catch (error) {
-        reply.code(404).send({ message: 'Địa chỉ không tồn tại' })
-      }
+      reply.send({
+        message: 'Lấy địa chỉ thành công',
+        data: result
+      })
     }
   )
 
@@ -351,7 +355,8 @@ export default async function accountRoutes(fastify: FastifyInstance, options: F
           200: UpdateAddressRes
         },
         body: UpdateAddressBody
-      }
+      },
+            preValidation: fastify.auth([requireLoginedHook])
     },
     async (request, reply) => {
       const accountId = request.decodedAccessToken?.userId
@@ -360,6 +365,49 @@ export default async function accountRoutes(fastify: FastifyInstance, options: F
       reply.send({
         data: result,
         message: 'Cập nhật thông tin thành công'
+      })
+    }
+  )
+
+  fastify.delete<{ Reply: AddressResType; Params: AddressIdParamType }>(
+    '/address/:id',
+    {
+      schema: {
+        response: {
+          200: AddressRes
+        },
+        params: AddressIdParam
+      },
+      preValidation: fastify.auth([requireLoginedHook])
+    },
+    async (request, reply) => {
+      const addressId = request.params.id
+      const result = await deleteAddressController(addressId)
+      reply.send({
+        data: result,
+        message: 'Xóa thành công'
+      })
+    }
+  )
+
+  fastify.patch<{ Reply: UpdateAddressDefaultResType; Params: AddressIdParamType }>(
+    '/address/:id/default',
+    {
+      schema: {
+        response: {
+          200: UpdateAddressDefaultRes
+        },
+        params: AddressIdParam
+      },
+      preValidation: fastify.auth([requireLoginedHook])
+    },
+    async (request, reply) => {
+      const accountId = request.decodedAccessToken?.userId as number
+      const addressId = request.params.id
+      const result = await setAddressDefaultController(accountId, addressId)
+      reply.send({
+        data: result,
+        message: 'update dia chi mac dinh thanh cong'
       })
     }
   )

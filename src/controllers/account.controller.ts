@@ -12,7 +12,6 @@ import {
   CreateAddressBodyType,
   CreateEmployeeAccountBodyType,
   CreateGuestBodyType,
-  CreateOrderOnlineBodyType,
   UpdateEmployeeAccountBodyType,
   UpdateMeBodyType
 } from '@/schemaValidations/account.schema'
@@ -147,11 +146,20 @@ export const deleteEmployeeAccount = async (accountId: number) => {
   })
 }
 
+export const deleteAddressController = async (addressId: number) => {
+  return prisma.deliveryAddress.delete({
+    where: {
+      id: addressId
+    }
+  })
+}
+
 export const getMeController = async (accountId: number) => {
   const account = prisma.account.findUniqueOrThrow({
     where: {
       id: accountId
-    }
+    },
+      include: { defaultAddress: true }
   })
   return account
 }
@@ -266,6 +274,10 @@ export const getAddressList = async (accountId: number) => {
 }
 
 export const getAddressById = async (id: number) => {
+  if (isNaN(id)) {
+    throw new Error('id k hop le')
+  }
+
   const address = await prisma.deliveryAddress.findUnique({
     where: { id }
   })
@@ -294,6 +306,26 @@ export const updateAddressController = async (
   })
 
   return updatedAddress
+}
+
+export const setAddressDefaultController = async (accountId: number, addressId: number) => {
+  const address = await prisma.deliveryAddress.findUnique({
+    where: { id: addressId }
+  })
+  if (!address || address.accountId !== accountId) {
+    throw new Error('kh tim thay dia chi hoac dia chi kh thuoc ve tai khoan nay')
+  }
+  const updatedAccount = await prisma.account.update({
+    where: { id: accountId },
+    data: {
+      defaultAddressId: addressId
+    },
+    include: {
+      defaultAddress: true // optional: nếu bạn muốn trả về luôn địa chỉ mặc định
+    }
+  })
+
+  return updatedAccount
 }
 
 // export const createOrderOnlineController = async (accountId: number, body: CreateOrderOnlineBodyType) => {
